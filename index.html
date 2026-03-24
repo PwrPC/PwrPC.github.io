@@ -7,16 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .title-font {
-            font-family: 'Playfair Display', serif;
-        }
-        .hero-bg {
-            background-color: #e6e0ff;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .title-font { font-family: 'Playfair Display', serif; }
+        .hero-bg { background-color: #e6e0ff; }
     </style>
 </head>
 <body class="hero-bg text-[#3f2a5e] min-h-screen flex flex-col">
@@ -31,30 +24,26 @@
             para que resalten, choquen o se complementen.
         </p>
 
-        <!-- Botones -->
         <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-10">
 
-            <!-- Servidor de Minecraft -->
-            <a href="https://www.heichi.org/server" 
+            <a href="/server" 
                class="group border-2 border-[#3f2a5e] px-8 py-10 hover:bg-white/40 transition-all flex flex-col items-center text-center">
                 <span class="font-medium text-2xl">Servidor de Minecraft</span>
             </a>
 
-            <!-- Descargas y otros -->
-            <a href="https://www.heichi.org/downloads" 
+            <a href="/downloads" 
                class="group border-2 border-[#3f2a5e] px-8 py-10 hover:bg-white/40 transition-all flex flex-col items-center text-center">
                 <span class="font-medium text-2xl">Descargas y otros</span>
             </a>
 
-            <!-- Colección (nuevo) -->
-            <a href="https://www.heichi.org/coleccion" 
+            <a href="/coleccion" 
                class="group border-2 border-[#3f2a5e] px-8 py-10 hover:bg-white/40 transition-all flex flex-col items-center text-center">
                 <span class="font-medium text-2xl">Colección</span>
             </a>
 
         </div>
 
-        <!-- Textos descriptivos -->
+        <!-- Textos descriptivos (mantuve los mismos) -->
         <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10 text-lg">
             <div class="text-center md:text-left">
                 <p>¡Sí, tenemos un servidor de Minecraft!<br>
@@ -72,16 +61,13 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
+    <!-- Footer igual que antes -->
     <footer class="mt-auto border-t border-[#3f2a5e]/30 bg-white/30 py-14">
         <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
                 <p class="title-font text-4xl font-bold">Heichi</p>
-                <p class="mt-3 text-sm opacity-75">
-                    este sitio es una obra de PwrPC.
-                </p>
+                <p class="mt-3 text-sm opacity-75">este sitio es una obra de PwrPC.</p>
             </div>
-
             <div class="text-left md:text-right">
                 <p class="font-medium text-lg mb-4">Contacto</p>
                 <div class="space-y-2 text-base">
@@ -92,6 +78,5 @@
             </div>
         </div>
     </footer>
-
 </body>
 </html>
