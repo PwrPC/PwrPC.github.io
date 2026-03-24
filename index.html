@@ -21,48 +21,60 @@
 </head>
 <body class="hero-bg text-[#3f2a5e] min-h-screen flex flex-col">
 
-    <div class="max-w-5xl mx-auto px-6 pt-20 pb-24">
-        <h1 class="title-font text-6xl md:text-7xl font-bold tracking-tight border-b border-[#3f2a5e] pb-3 inline-block">
+    <div class="max-w-6xl mx-auto px-6 pt-20 pb-28">
+        <h1 class="title-font text-6xl md:text-7xl font-bold tracking-tight border-b border-[#3f2a5e] pb-4 inline-block">
             Heichi <span class="text-5xl md:text-6xl">[並置]</span>
         </h1>
         
         <p class="mt-10 text-2xl leading-relaxed max-w-3xl">
-            significa yuxtaposición, que es el arte de colocar elementos opuestos o diferentes uno al lado del otro para que resalten, choquen o se complementen.
+            significa yuxtaposición, que es el arte de colocar elementos opuestos o diferentes uno al lado del otro 
+            para que resalten, choquen o se complementen.
         </p>
 
-        <div class="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-16">
-            
-            <!-- Minecraft -->
-            <div class="flex flex-col lg:flex-row gap-8 items-start">
-                <div class="border-2 border-[#3f2a5e] px-10 py-8 w-full lg:w-80 flex-shrink-0 hover:bg-white/40 transition-all text-center">
-                    <p class="font-medium text-xl">Servidor de Minecraft</p>
-                </div>
-                <div class="pt-3">
-                    <p class="text-xl leading-relaxed">
-                        ¡Sí, tenemos un servidor de Minecraft, Así que puedes solicitar acceso!
-                    </p>
-                </div>
-            </div>
+        <!-- Botones -->
+        <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-10">
 
-            <!-- Descargas -->
-            <div class="flex flex-col lg:flex-row gap-8 items-start">
-                <div class="border-2 border-[#3f2a5e] px-10 py-8 w-full lg:w-80 flex-shrink-0 hover:bg-white/40 transition-all text-center">
-                    <p class="font-medium text-xl">Descargas y otros</p>
-                </div>
-                <div class="pt-3">
-                    <p class="text-xl leading-relaxed">
-                        Aquí hay mundos de diferentes servidores y otros archivos que puedes descargar. 
-                        No es mucho, pero sirve.
-                    </p>
-                </div>
-            </div>
+            <!-- Servidor de Minecraft -->
+            <a href="https://www.heichi.org/server" 
+               class="group border-2 border-[#3f2a5e] px-8 py-10 hover:bg-white/40 transition-all flex flex-col items-center text-center">
+                <span class="font-medium text-2xl">Servidor de Minecraft</span>
+            </a>
 
+            <!-- Descargas y otros -->
+            <a href="https://www.heichi.org/downloads" 
+               class="group border-2 border-[#3f2a5e] px-8 py-10 hover:bg-white/40 transition-all flex flex-col items-center text-center">
+                <span class="font-medium text-2xl">Descargas y otros</span>
+            </a>
+
+            <!-- Colección (nuevo) -->
+            <a href="https://www.heichi.org/coleccion" 
+               class="group border-2 border-[#3f2a5e] px-8 py-10 hover:bg-white/40 transition-all flex flex-col items-center text-center">
+                <span class="font-medium text-2xl">Colección</span>
+            </a>
+
+        </div>
+
+        <!-- Textos descriptivos -->
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10 text-lg">
+            <div class="text-center md:text-left">
+                <p>¡Sí, tenemos un servidor de Minecraft!<br>
+                Así que puedes solicitar acceso.</p>
+            </div>
+            <div class="text-center md:text-left">
+                <p>Aquí hay mundos de diferentes servidores<br>
+                y otros archivos que puedes descargar.<br>
+                No es mucho, pero sirve.</p>
+            </div>
+            <div class="text-center md:text-left">
+                <p>Mi colección personal de juegos,<br>
+                consolas y otras cosas random que tengo por ahí.</p>
+            </div>
         </div>
     </div>
 
     <!-- FOOTER -->
     <footer class="mt-auto border-t border-[#3f2a5e]/30 bg-white/30 py-14">
-        <div class="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
                 <p class="title-font text-4xl font-bold">Heichi</p>
                 <p class="mt-3 text-sm opacity-75">
