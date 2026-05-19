@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Servidor de Minecraft - Heichi</title>
+    <title>Servidor - Heichi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap');
@@ -14,58 +14,75 @@
 </head>
 <body class="hero-bg text-[#3f2a5e] min-h-screen">
 
-    <div class="max-w-5xl mx-auto px-6 pt-16 pb-20">
-        <a href="https://www.heichi.org" class="text-sm hover:underline">← Volver a Inicio</a>
+    <div class="max-w-6xl mx-auto px-6 pt-16 pb-24">
+        
+        <a href="https://www.heichi.org" class="text-sm hover:underline">← Volver al Inicio</a>
 
-        <h1 class="title-font text-5xl font-bold mt-8">mc.heichi.org</h1>
-        <p class="text-3xl mt-2">SMP en Minecraft Java 1.21.1 con Mods.</p>
+        <h1 class="title-font text-6xl font-bold tracking-tight mt-8">mc.heichi.org</h1>
 
-        <div class="mt-10 max-w-2xl">
-            <p class="text-lg leading-relaxed">
-                El servidor tiene una Whitelist. No puedes entrar sin pedir permiso.<br>
-                contactate si es que quieres entrar al server.
-            </p>
-            <p class="text-sm mt-6 opacity-75">
-                [Recordatorio de que depende de todos los miembros actuales]
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 mt-16">
 
-                
-                [Los modpacks estarán disponibles en la sección "Descargas y Otros"]
-            </p>
-        </div>
-
-        <h1 class="title-font text-5xl font-bold mt-8">Galeria</h1>
-
-        <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- === COLUMNA IZQUIERDA - CONEXIÓN === -->
             <div>
-                <img src="images/S1.PNG" alt="Temporada 1" class="rounded-lg shadow-md">
-                <p class="text-center mt-3 font-medium">Temporada 1</p>
+                <h2 class="text-4xl font-semibold mb-10">Cómo conectarte</h2>
+
+                <!-- Java -->
+                <div class="mb-12">
+                    <h3 class="text-2xl font-medium mb-3">Conectarse desde Java</h3>
+                    <p class="text-3xl font-mono bg-white/60 px-6 py-4 rounded-xl inline-block">
+                        mc.heichi.org
+                    </p>
+                    <p class="text-sm mt-3 opacity-75">Puerto: 25565 (por defecto)</p>
+                </div>
+
+                <!-- Bedrock -->
+                <div>
+                    <h3 class="text-2xl font-medium mb-3">Conectarse desde Bedrock</h3>
+                    <p class="text-3xl font-mono bg-white/60 px-6 py-4 rounded-xl inline-block">
+                        mc.heichi.org
+                    </p>
+                    <p class="text-sm mt-3 opacity-75">Puerto: <span class="font-semibold">19132</span></p>
+                </div>
             </div>
-            <div>
-                <img src="images/S2.PNG" alt="Temporada 2" class="rounded-lg shadow-md">
-                <p class="text-center mt-3 font-medium">Temporada 2</p>
+
+            <!-- === COLUMNA DERECHA - INFO DEL SERVIDOR === -->
+            <div class="flex flex-col">
+                <!-- Imagen + Título -->
+                <div class="bg-white/70 border border-[#3f2a5e]/30 rounded-2xl p-8 text-center">
+                    <!-- Aquí pon la imagen del servidor -->
+                    <img src="images/JPv6.jpg" 
+                         alt="JUXTAPOSED V6" 
+                         class="w-full rounded-xl shadow-md mx-auto">
+                    
+                    <h2 class="title-font text-4xl font-bold mt-8">JUXTAPOSED V6</h2>
+                    <p class="text-2xl font-medium">de Blocky</p>
+                    
+                    <p class="mt-6 text-lg opacity-90">
+                        Servidor Paper de Minecraft 1.26.1 Vanilla
+                    </p>
+                </div>
+
+                <!-- Botones -->
+                <div class="mt-10 space-y-4">
+                    <a href="#" 
+                       class="block w-full text-center border-2 border-[#3f2a5e] py-5 text-xl font-medium hover:bg-[#3f2a5e] hover:text-white transition-all rounded-xl">
+                        Ayuda
+                    </a>
+                    
+                    <a href="#" 
+                       class="block w-full text-center border-2 border-[#3f2a5e] py-5 text-xl font-medium hover:bg-[#3f2a5e] hover:text-white transition-all rounded-xl">
+                        Facciones
+                    </a>
+                    
+                    <a href="#" 
+                       class="block w-full text-center border-2 border-[#3f2a5e] py-5 text-xl font-medium hover:bg-[#3f2a5e] hover:text-white transition-all rounded-xl">
+                        Cuestionario para Moderador
+                    </a>
+                </div>
             </div>
-            <div>
-                <img src="images/S3.PNG" alt="Temporada 3" class="rounded-lg shadow-md">
-                <p class="text-center mt-3 font-medium">Temporada 3</p>
-            </div>
+
         </div>
     </div>
 
 </body>
-        <footer class="mt-auto border-t border-[#3f2a5e]/30 bg-white/30 py-14">
-        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-                <p class="title-font text-4xl font-bold">Heichi</p>
-                <p class="mt-3 text-sm opacity-75">este sitio es una obra de PwrPC.</p>
-            </div>
-            <div class="text-left md:text-right">
-                <p class="font-medium text-lg mb-4">Contacto</p>
-                <div class="space-y-2 text-base">
-                    <p>Instagram <a href="https://instagram.com/Pwr_PC" target="_blank" class="hover:underline">@Pwr_PC</a></p>
-                    <p>X <a href="https://x.com/Pwr_PC" target="_blank" class="hover:underline">@Pwr_PC</a></p>
-                    <p>Bl0cky@icloud.com</p>
-                </div>
-            </div>
-        </div>
-    </footer>
 </html>
