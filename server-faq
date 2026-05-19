@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Heichi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .title-font { font-family: 'Playfair Display', serif; }
+        .hero-bg { background-color: #e6e0ff; }
+    </style>
+</head>
+<body class="hero-bg text-[#3f2a5e] min-h-screen">
+
+    <div class="max-w-4xl mx-auto px-6 pt-16 pb-24">
+        
+        <a href="https://www.heichi.org" class="text-sm hover:underline mb-8 inline-block">← Volver al Inicio</a>
+
+        <h1 class="title-font text-6xl font-bold tracking-tight">Preguntas Frecuentes (FAQ)</h1>
+        <p class="text-xl mt-4">JUXTAPOSED | V6 de Blocky</p>
+
+        <div class="mt-16 space-y-16">
+
+            <!-- 1. Bedrock Teléfonos y PC -->
+            <section>
+                <h2 class="text-3xl font-semibold mb-6 border-b border-[#3f2a5e] pb-3">Conectarse desde Bedrock (Teléfonos y PC)</h2>
+                <div class="space-y-6">
+                    <div>
+                        <p class="font-medium"> en la seccion servidores. Dirección:</p>
+                        <p class="font-mono text-lg bg-white/60 px-4 py-2 inline-block rounded-lg">mc.heichi.org</p>
+                    </div>
+                    <div>
+                        <p class="font-medium">Puerto:</p>
+                        <p class="font-mono text-lg">19132</p>
+                    </div>
+                    <p class="text-lg">Funciona tanto en celulares Android/iOS como en Bedrock para Windows.</p>
+                </div>
+            </section>
+
+            <!-- 2. Bedrock Consolas -->
+            <section>
+                <h2 class="text-3xl font-semibold mb-6 border-b border-[#3f2a5e] pb-3">Conectarse desde Bedrock (Consolas)</h2>
+                <p class="text-lg leading-relaxed">
+                    En PlayStation, Xbox, Nintendo Switch y Fire TV también puedes conectarte usando:<br><br>
+                    <span class="font-mono bg-white/60 px-4 py-2 rounded-lg">mc.heichi.org:19132</span>
+                </p>
+                <p class="mt-4 text-sm opacity-75">debes usar Bedrock Nogether o Bedrock Connect en consolas</p>
+                 <a href="https://github.com/Pugmatt/BedrockConnect" class="inline-block mt-4 bg-[#3f2a5e] text-white px-8 py-4 rounded-xl text-lg font-medium hover:bg-black transition-all">
+                    Bedrock Connect
+                <p class="mt-4 text-sm opacity-75">debes usar Bedrock Nogether o Bedrock Connect en consolas</p>
+                 <a href="https://bedrocktogether.net" class="inline-block mt-4 bg-[#3f2a5e] text-white px-8 py-4 rounded-xl text-lg font-medium hover:bg-black transition-all">
+                    Bedrock Together
+                    
+            </section>
+
+            <!-- 3. Modpack -->
+            <section>
+                <h2 class="text-3xl font-semibold mb-6 border-b border-[#3f2a5e] pb-3">❓ ¿Hay un modpack?</h2>
+                <p class="text-2xl font-medium">No.</p>
+                <p class="mt-4 text-lg">El servidor es <strong>Vanilla</strong> con Paper. Solo usamos plugins, no mods. Pero puedes usar mods del lado de Cliente</p>
+            </section>
+
+            <!-- 4. Comunicación -->
+            <section>
+                <h2 class="text-3xl font-semibold mb-6 border-b border-[#3f2a5e] pb-3">Comunicación</h2>
+                <p class="text-lg">Tenemos un servidor de Discord oficial donde se organiza todo:</p>
+                <a href="https://discord.com/invite/WesE3m4Z6D" class="inline-block mt-4 bg-[#3f2a5e] text-white px-8 py-4 rounded-xl text-lg font-medium hover:bg-black transition-all">
+                    Viajemos al Discord
+                </a>
+                <p class="mt-6">Canales importantes:</p>
+                <ul class="list-disc pl-6 mt-3 space-y-2 text-lg">
+                    <li>en el server de Discord!
+                    <li> - Area Común (Canal publico para todos)
+                    <li> - Canales Lounge (Canales Privados)
+                </ul>
+            </section>
+
+            <!-- 5. Cambiar Skin -->
+            <section>
+                <h2 class="text-3xl font-semibold mb-6 border-b border-[#3f2a5e] pb-3">¿Cómo cambio mi Skin?</h2>
+                <p class="text-lg">Usamos el plugin <strong>SkinsRestorer</strong>.</p>
+                <p class="mt-4">Puedes cambiar tu skin de dos formas:</p>
+                <ul class="list-disc pl-6 mt-4 space-y-3 text-lg">
+                    <li>Usando <strong>name.mc</strong> con /skin set [Usuario de NameMC] (recomendado)</li>
+                </ul>
+            </section>
+
+            <!-- 6. JDK y BDK -->
+            <section>
+                <h2 class="text-3xl font-semibold mb-6 border-b border-[#3f2a5e] pb-3">🔤 ¿Qué significan [JDK] y [BDK]?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white/60 p-6 rounded-xl">
+                        <p class="font-semibold text-xl">[JDK] = Java </p>
+                        <p class="mt-2">Jugador conectado desde la versión <strong>Java Edition</strong></p>
+                    </div>
+                    <div class="bg-white/60 p-6 rounded-xl">
+                        <p class="font-semibold text-xl">[BDK] = Bedrock </p>
+                        <p class="mt-2">Jugador conectado desde la versión <strong>Bedrock Edition</strong> (móvil, consola, etc.)</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Reglas -->
+            <section>
+                <h2 class="text-3xl font-semibold mb-6 border-b border-[#3f2a5e] pb-3">¿Qué NO está permitido?</h2>
+                <div class="bg-red-50 border border-red-300 p-8 rounded-2xl">
+                    <ul class="space-y-4 text-lg">
+                        <li> - Uso de cheats, hacks o x-ray</li>
+                        <li> - Griefing (destruir cosas de otros sin permiso)</li>
+                        <li> - Uso de exploits o bugs graves</li>
+                        <li> - Publicidad no autorizada</li>
+                        <li> - Ser tóxico o acosar a otros jugadores</li>
+                        <li> -  Duplicación de items (excepto glitches permitidos por staff)</li>
+                    </ul>
+                </div>
+                <p class="mt-6 text-center text-sm opacity-75">Cualquier infracción puede resultar en kick, ban temporal o permanente.</p>
+            </section>
+
+        </div>
+
+        <div class="text-center mt-20">
+            <p class="text-sm opacity-70">¿Tienes más dudas? Pregunta en el Discord del servidor.</p>
+        </div>
+    </div>
+
+</body>
+</html>
