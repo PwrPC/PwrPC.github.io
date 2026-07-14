@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test del GPU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  :root{
+    --bg:#E5E0FD;
+    --ink:#3C2B5B;
+    --ink-muted:#6B5E8F;
+    --viewport-gray:#B6B6B6;
+    --viewport-gray-dark:#9C9C9C;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
+  body{
+    font-family:'Poppins', sans-serif;
+    color:var(--ink);
+  }
+
+  .top-bar{ height:8px; background:var(--ink); width:100%; }
+
+  .page{
+    max-width:1180px;
+    margin:0 auto;
+    padding:64px 32px 48px;
+  }
+
+  header h1{
+    font-family:'Roboto Slab', serif;
+    font-weight:800;
+    font-size:56px;
+    margin:0 0 22px 0;
+    padding-bottom:18px;
+    border-bottom:2px solid var(--ink);
+    display:inline-block;
+    letter-spacing:-0.01em;
+  }
+
+  header p{
+    font-size:19px;
+    line-height:1.55;
+    color:var(--ink);
+    max-width:640px;
+    margin:0 0 48px 0;
+  }
+
+  /* ---------- viewport ---------- */
+  .viewport-frame{
+    border:2px solid var(--ink);
+    margin-bottom:14px;
+  }
+  .viewport{
+    position:relative;
+    height:480px;
+    background:
+      radial-gradient(ellipse at 50% 40%, var(--viewport-gray) 0%, var(--viewport-gray-dark) 100%);
+  }
+  .viewport canvas{ display:block; width:100% !important; height:100% !important; }
+
+  .viewport-readout{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:15px;
+    margin-bottom:56px;
+    padding:0 2px;
+  }
+  .viewport-readout .fps-label{ color:var(--ink-muted); }
+  .viewport-readout .fps-value{ font-weight:700; }
+  .viewport-readout .fps-value.warn{ color:#8a2f2f; }
+
+  /* ---------- box row (mirrors heichi's 3-box layout) ---------- */
+  .box-row{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:28px;
+    margin-bottom:44px;
+  }
+  @media (max-width: 860px){
+    .box-row{ grid-template-columns:1fr; }
+  }
+
+  .box{
+    border:2px solid var(--ink);
+    padding:28px 26px;
+  }
+  .box h2{
+    font-family:'Poppins', sans-serif;
+    font-weight:700;
+    font-size:20px;
+    margin:0 0 18px 0;
+  }
+
+  .stat-line{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:14.5px;
+    line-height:1.9;
+    color:var(--ink);
+  }
+  .stat-line .k{ color:var(--ink-muted); }
+  .stat-line .v{
+    font-weight:600;
+    text-align:right;
+    max-width:60%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  /* ---------- controls ---------- */
+  .control-block{ margin-bottom:20px; }
+  .control-block:last-child{ margin-bottom:0; }
+  .control-block label{
+    display:block;
+    font-size:13.5px;
+    color:var(--ink-muted);
+    margin-bottom:8px;
+  }
+  .control-block label b{ color:var(--ink); font-weight:600; }
+
+  input[type=range]{
+    -webkit-appearance:none;
+    width:100%; height:2px;
+    background:var(--ink);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--ink);
+    cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--ink);
+    cursor:pointer;
+  }
+
+  .axis-toggle{ display:flex; gap:8px; flex-wrap:wrap; }
+  .axis-toggle button{
+    padding:8px 14px;
+    background:transparent;
+    border:1.5px solid var(--ink);
+    color:var(--ink);
+    font-family:'Poppins', sans-serif;
+    font-size:13px; font-weight:600;
+    cursor:pointer;
+  }
+  .axis-toggle button.active{
+    background:var(--ink);
+    color:var(--bg);
+  }
+
+  .upload-zone{
+    border:1.5px dashed var(--ink);
+    padding:20px 14px;
+    text-align:center;
+    cursor:pointer;
+    position:relative;
+    margin-bottom:12px;
+  }
+  .upload-zone input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .upload-zone .txt{ font-size:13.5px; }
+  .upload-zone .txt b{ font-weight:700; }
+  .upload-zone.dragover{ background:rgba(60,43,91,0.06); }
+
+  .reset-tex{
+    width:100%;
+    padding:9px 0;
+    background:transparent;
+    border:1.5px solid var(--ink);
+    color:var(--ink);
+    font-family:'Poppins', sans-serif;
+    font-size:12.5px; font-weight:600;
+    cursor:pointer;
+  }
+  .reset-tex:hover{ background:var(--ink); color:var(--bg); }
+
+  footer{
+    border-top:2px solid var(--ink);
+    padding-top:20px;
+    font-size:14px;
+    color:var(--ink-muted);
+    line-height:1.7;
+  }
+  footer b{ color:var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+
+<div class="page">
+
+  <header>
+    <h1>Prueba GPU [並置]</h1>
+    <p>Un cubo, dos superficies: la que renderiza tu tarjeta gráfica y la que tú decidas subirle. Gira sobre su propio eje mientras el navegador mide, en tiempo real, lo que tu equipo es capaz de mostrar.</p>
+  </header>
+
+  <div class="viewport-frame">
+    <div class="viewport" id="viewport"></div>
+  </div>
+  <div class="viewport-readout">
+    <span class="fps-label">Cuadros por segundo</span>
+    <span class="fps-value" id="fpsValue">--</span>
+  </div>
+
+  <div class="box-row">
+
+    <div class="box">
+      <h2>Sistema</h2>
+      <div class="stat-line"><span class="k">Núcleos lógicos</span><span class="v" id="statCores">--</span></div>
+      <div class="stat-line"><span class="k">Memoria estimada</span><span class="v" id="statMem">--</span></div>
+      <div class="stat-line"><span class="k">Plataforma</span><span class="v" id="statPlatform">--</span></div>
+      <div class="stat-line"><span class="k">Resolución</span><span class="v" id="statScreen">--</span></div>
+    </div>
+
+    <div class="box">
+      <h2>GPU</h2>
+      <div class="stat-line"><span class="k">Tarjeta</span><span class="v" id="statGpuRenderer" title="">--</span></div>
+      <div class="stat-line"><span class="k">Fabricante</span><span class="v" id="statGpuVendor">--</span></div>
+      <div class="stat-line"><span class="k">API gráfica</span><span class="v" id="statGl">--</span></div>
+      <div class="stat-line"><span class="k">Tiempo de frame</span><span class="v" id="statFrameTime">--</span></div>
+    </div>
+
+    <div class="box">
+      <h2>Controles</h2>
+      <div class="control-block">
+        <label>Velocidad de giro — <b><span id="speedVal">1.0×</span></b></label>
+        <input type="range" id="speedSlider" min="0" max="5" step="0.1" value="1">
+      </div>
+      <div class="control-block">
+        <label>Eje de rotación</label>
+        <div class="axis-toggle">
+          <button data-axis="y" class="active">Y</button>
+          <button data-axis="x">X</button>
+          <button data-axis="xy">X+Y</button>
+          <button data-axis="z">Z</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="box-row" style="grid-template-columns:1fr;">
+    <div class="box">
+      <h2>Textura del cubo</h2>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="textureInput" accept="image/*">
+        <div class="txt"><b>Subir una imagen</b> desde este ordenador, o arrástrala aquí</div>
+      </div>
+      <button class="reset-tex" id="resetTexture">Restaurar textura de prueba</button>
+    </div>
+  </div>
+
+  <footer>
+    <b>Esta prueba corre enteramente en tu navegador.</b><br>
+    Ningún archivo ni dato sale de este equipo. El cubo se renderiza con Three.js sobre WebGL.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+
+  /* ---------- three.js scene ---------- */
+  const viewport = document.getElementById('viewport');
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, viewport.clientWidth/viewport.clientHeight, 0.1, 100);
+  camera.position.set(2.6, 2.0, 3.2);
+  camera.lookAt(0,0,0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+  viewport.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+  const key = new THREE.DirectionalLight(0xffffff, 1.0);
+  key.position.set(4,5,3);
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0x3C2B5B, 0.4);
+  rim.position.set(-4,-2,-3);
+  scene.add(rim);
+
+  /* ---- default calibration texture (procedural) ---- */
+  function buildTestTexture(){
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 512;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#E5E0FD';
+    ctx.fillRect(0,0,512,512);
+    ctx.strokeStyle = '#3C2B5B';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(20,20,472,472);
+    ctx.lineWidth = 1;
+    for(let i=52;i<=460;i+=52){
+      ctx.beginPath(); ctx.moveTo(20,i); ctx.lineTo(492,i); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(i,20); ctx.lineTo(i,492); ctx.stroke();
+    }
+    ctx.font = '700 34px Poppins, sans-serif';
+    ctx.fillStyle = '#3C2B5B';
+    ctx.fillText('並置', 190, 270);
+    return new THREE.CanvasTexture(c);
+  }
+
+  const defaultTexture = buildTestTexture();
+
+  const geometry = new THREE.BoxGeometry(1.6,1.6,1.6);
+  const material = new THREE.MeshStandardMaterial({ map: defaultTexture, roughness:0.6, metalness:0.1 });
+  const cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+
+  const edges = new THREE.EdgesGeometry(geometry);
+  const edgeLines = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color:0x3C2B5B, transparent:true, opacity:0.5 }));
+  cube.add(edgeLines);
+
+  function onResize(){
+    const w = viewport.clientWidth, h = viewport.clientHeight;
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w,h);
+  }
+  window.addEventListener('resize', onResize);
+  onResize();
+
+  /* ---------- rotation controls ---------- */
+  let speed = 1.0;
+  let axisMode = 'y';
+  document.getElementById('speedSlider').addEventListener('input', e=>{
+    speed = parseFloat(e.target.value);
+    document.getElementById('speedVal').textContent = speed.toFixed(1)+'×';
+  });
+  document.querySelectorAll('.axis-toggle button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.axis-toggle button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      axisMode = btn.dataset.axis;
+    });
+  });
+
+  /* ---------- texture upload ---------- */
+  const textureInput = document.getElementById('textureInput');
+  const uploadZone = document.getElementById('uploadZone');
+  let uploadedTexture = null;
+
+  textureInput.addEventListener('change', e=>{
+    const file = e.target.files[0];
+    if(file) applyImageFile(file);
+  });
+  ['dragover','dragenter'].forEach(ev=>{
+    uploadZone.addEventListener(ev, e=>{ e.preventDefault(); uploadZone.classList.add('dragover'); });
+  });
+  ['dragleave','drop'].forEach(ev=>{
+    uploadZone.addEventListener(ev, e=>{ e.preventDefault(); uploadZone.classList.remove('dragover'); });
+  });
+  uploadZone.addEventListener('drop', e=>{
+    const file = e.dataTransfer.files[0];
+    if(file && file.type.startsWith('image/')) applyImageFile(file);
+  });
+
+  function applyImageFile(file){
+    const reader = new FileReader();
+    reader.onload = evt=>{
+      const img = new Image();
+      img.onload = ()=>{
+        if(uploadedTexture) uploadedTexture.dispose();
+        uploadedTexture = new THREE.Texture(img);
+        uploadedTexture.needsUpdate = true;
+        material.map = uploadedTexture;
+        material.needsUpdate = true;
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById('resetTexture').addEventListener('click', ()=>{
+    material.map = defaultTexture;
+    material.needsUpdate = true;
+    textureInput.value = '';
+  });
+
+  /* ---------- GPU info ---------- */
+  const gl = renderer.getContext();
+  let rendererName = 'No disponible', vendorName = 'No disponible';
+  const dbgInfo = gl.getExtension('WEBGL_debug_renderer_info');
+  if(dbgInfo){
+    rendererName = gl.getParameter(dbgInfo.UNMASKED_RENDERER_WEBGL) || 'No disponible';
+    vendorName = gl.getParameter(dbgInfo.UNMASKED_VENDOR_WEBGL) || 'No disponible';
+  } else {
+    rendererName = gl.getParameter(gl.RENDERER) || 'No disponible';
+    vendorName = gl.getParameter(gl.VENDOR) || 'No disponible';
+  }
+  const rEl = document.getElementById('statGpuRenderer');
+  rEl.textContent = rendererName;
+  rEl.title = rendererName;
+  document.getElementById('statGpuVendor').textContent = vendorName;
+  document.getElementById('statGl').textContent = gl.getParameter(gl.VERSION);
+
+  /* ---------- system info ---------- */
+  document.getElementById('statCores').textContent = (navigator.hardwareConcurrency || '—') + ' hilos';
+  document.getElementById('statMem').textContent = navigator.deviceMemory ? ('≥ ' + navigator.deviceMemory + ' GB') : 'No expuesto';
+  document.getElementById('statPlatform').textContent = navigator.platform || navigator.userAgentData?.platform || '—';
+  document.getElementById('statScreen').textContent = window.screen.width + ' × ' + window.screen.height;
+
+  /* ---------- FPS tracking ---------- */
+  let last = performance.now();
+  let frames = 0;
+  let fpsWindowStart = performance.now();
+
+  function animate(now){
+    requestAnimationFrame(animate);
+
+    const delta = (now - last) / 1000;
+    last = now;
+
+    const r = delta * speed;
+    if(axisMode === 'y') cube.rotation.y += r;
+    else if(axisMode === 'x') cube.rotation.x += r;
+    else if(axisMode === 'z') cube.rotation.z += r;
+    else if(axisMode === 'xy'){ cube.rotation.x += r*0.6; cube.rotation.y += r; }
+
+    renderer.render(scene, camera);
+
+    frames++;
+    if(now - fpsWindowStart >= 250){
+      const fps = Math.round((frames * 1000) / (now - fpsWindowStart));
+      frames = 0;
+      fpsWindowStart = now;
+
+      const fpsEl = document.getElementById('fpsValue');
+      fpsEl.textContent = fps;
+      fpsEl.classList.toggle('warn', fps < 30);
+      document.getElementById('statFrameTime').textContent = (1000/Math.max(fps,1)).toFixed(1) + ' ms';
+    }
+  }
+  requestAnimationFrame(animate);
+
+})();
+</script>
+</body>
+</html>
