@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wikipedia al azar</title>
+<title>randomized Wikipedia images core</title>
 <style>
   :root{
     --wiki-blue:#0645ad;
@@ -55,9 +55,30 @@
     font-weight:400;
     border-bottom:1px solid var(--wiki-border);
     padding-bottom:10px;
-    margin:6px 0 28px 0;
+    margin:6px 0 20px 0;
     width:min(90vw, 700px);
     text-align:center;
+  }
+
+  .lang-row{
+    width:min(90vw, 700px);
+    min-width:50vw;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:8px;
+    margin-bottom:14px;
+    font-size:13px;
+    color:var(--wiki-text-muted);
+  }
+  .lang-row select{
+    font-family:inherit;
+    font-size:13px;
+    padding:5px 8px;
+    border:1px solid var(--wiki-border);
+    border-radius:2px;
+    background:var(--wiki-card-bg);
+    color:var(--wiki-text);
   }
 
   /* ---------- the wikipedia-style thumbnail card ---------- */
@@ -170,6 +191,23 @@
 <main>
   <h1 class="page-title">Wikipedia al azar</h1>
 
+  <div class="lang-row">
+    <label for="langSelect">Idioma</label>
+    <select id="langSelect">
+      <option value="mixed" selected>Mezclado (todos)</option>
+      <option value="es">Español</option>
+      <option value="en">English</option>
+      <option value="fr">Français</option>
+      <option value="de">Deutsch</option>
+      <option value="it">Italiano</option>
+      <option value="pt">Português</option>
+      <option value="ja">日本語</option>
+      <option value="nl">Nederlands</option>
+      <option value="ru">Русский</option>
+      <option value="ca">Català</option>
+    </select>
+  </div>
+
   <div class="thumb loading" id="thumbCard">
     <div class="thumb-image-wrap" id="imageWrap">
       <span>Cargando…</span>
@@ -194,10 +232,12 @@
 
 <script>
 (function(){
-  const WIKI_LANG = 'es';
-  const API_BASE = `https://${WIKI_LANG}.wikipedia.org/w/api.php`;
-  const MAX_ATTEMPTS = 12;
+  const WIKI_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'nl', 'ru', 'ca'];
+  const MAX_ATTEMPTS = 30;
   const MIN_CAPTION_LEN = 40;
+
+  function apiBaseFor(lang){ return `https://${lang}.wikipedia.org/w/api.php`; }
+  function randomLang(){ return WIKI_LANGS[Math.floor(Math.random() * WIKI_LANGS.length)]; }
 
   const thumbCard = document.getElementById('thumbCard');
   const imageWrap = document.getElementById('imageWrap');
@@ -205,24 +245,27 @@
   const articleCredit = document.getElementById('articleCredit');
   const randomBtn = document.getElementById('randomBtn');
   const sourceBtn = document.getElementById('sourceBtn');
+  const langSelect = document.getElementById('langSelect');
 
-  function absolutizeUrl(url){
+  function currentLangSetting(){ return langSelect.value; }
+
+  function absolutizeUrl(url, lang){
     if(!url) return url;
     if(url.startsWith('//')) return 'https:' + url;
-    if(url.startsWith('/')) return `https://${WIKI_LANG}.wikipedia.org` + url;
+    if(url.startsWith('/')) return `https://${lang}.wikipedia.org` + url;
     return url;
   }
 
-  async function getRandomTitle(){
-    const url = `${API_BASE}?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`;
+  async function getRandomTitle(lang){
+    const url = `${apiBaseFor(lang)}?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`;
     const res = await fetch(url);
     if(!res.ok) return null;
     const data = await res.json();
     return data?.query?.random?.[0]?.title || null;
   }
 
-  async function getParsedHtml(title){
-    const url = `${API_BASE}?action=parse&page=${encodeURIComponent(title)}&prop=text&format=json&formatversion=2&origin=*`;
+  async function getParsedHtml(title, lang){
+    const url = `${apiBaseFor(lang)}?action=parse&page=${encodeURIComponent(title)}&prop=text&format=json&formatversion=2&origin=*`;
     const res = await fetch(url);
     if(!res.ok) return null;
     const data = await res.json();
@@ -231,13 +274,17 @@
 
   // Finds a real image + its real caption, exactly as rendered in the article,
   // by picking a random page and parsing its rendered HTML for thumbnail figures.
+  // In "mixed" mode a different wiki language is rolled on every attempt.
   async function fetchRealImageWithCaption(){
+    const fixedLang = currentLangSetting();
+
     for(let attempt=0; attempt<MAX_ATTEMPTS; attempt++){
+      const lang = fixedLang === 'mixed' ? randomLang() : fixedLang;
       try{
-        const title = await getRandomTitle();
+        const title = await getRandomTitle(lang);
         if(!title) continue;
 
-        const html = await getParsedHtml(title);
+        const html = await getParsedHtml(title, lang);
         if(!html) continue;
 
         const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -266,17 +313,18 @@
         if(magnify) magnify.remove();
 
         capClone.querySelectorAll('a').forEach(a=>{
-          a.setAttribute('href', absolutizeUrl(a.getAttribute('href')));
+          a.setAttribute('href', absolutizeUrl(a.getAttribute('href'), lang));
           a.setAttribute('target', '_blank');
           a.setAttribute('rel', 'noopener');
         });
 
         return {
           title,
-          imgSrc: absolutizeUrl(img.getAttribute('src')),
+          lang,
+          imgSrc: absolutizeUrl(img.getAttribute('src'), lang),
           imgAlt: img.getAttribute('alt') || title,
           captionHtml: capClone.innerHTML.trim(),
-          pageUrl: `https://${WIKI_LANG}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`
+          pageUrl: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`
         };
       }catch(e){ /* try another random page */ }
     }
@@ -310,7 +358,8 @@
 
     captionBox.innerHTML = '<span class="magnify">⤢</span>' + result.captionHtml;
 
-    articleCredit.innerHTML = 'del artículo <a href="' + result.pageUrl + '" target="_blank" rel="noopener">' + result.title + '</a>';
+    articleCredit.innerHTML =
+      'del artículo <a href="' + result.pageUrl + '" target="_blank" rel="noopener">' + result.title + '</a> (' + result.lang + ')';
 
     sourceBtn.href = result.pageUrl;
     sourceBtn.removeAttribute('aria-disabled');
@@ -319,6 +368,7 @@
   }
 
   randomBtn.addEventListener('click', loadRandom);
+  langSelect.addEventListener('change', loadRandom);
   loadRandom();
 })();
 </script>
