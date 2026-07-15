@@ -233,11 +233,15 @@
 <script>
 (function(){
   const WIKI_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'nl', 'ru', 'ca'];
-  const MAX_ATTEMPTS = 30;
+  const MAX_BATCHES = 5;
+  const CANDIDATES_PER_BATCH = 20;
+  const PARSE_PARALLEL = 8;
+  const MIN_ARTICLE_BYTES = 4000; // short stubs almost never have a captioned image
   const MIN_CAPTION_LEN = 1;
 
   function apiBaseFor(lang){ return `https://${lang}.wikipedia.org/w/api.php`; }
   function randomLang(){ return WIKI_LANGS[Math.floor(Math.random() * WIKI_LANGS.length)]; }
+  function shuffle(arr){ return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]); }
 
   const thumbCard = document.getElementById('thumbCard');
   const imageWrap = document.getElementById('imageWrap');
@@ -256,12 +260,15 @@
     return url;
   }
 
-  async function getRandomTitle(lang){
-    const url = `${apiBaseFor(lang)}?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`;
+  async function getRandomCandidates(lang, limit){
+    const url = `${apiBaseFor(lang)}?action=query&generator=random&grnnamespace=0&grnlimit=${limit}&prop=info&format=json&formatversion=2&origin=*`;
     const res = await fetch(url);
-    if(!res.ok) return null;
+    if(!res.ok) return [];
     const data = await res.json();
-    return data?.query?.random?.[0]?.title || null;
+    const pages = data?.query?.pages || [];
+    return pages
+      .filter(p => typeof p.length === 'number' && p.length >= MIN_ARTICLE_BYTES)
+      .map(p => p.title);
   }
 
   async function getParsedHtml(title, lang){
@@ -272,61 +279,69 @@
     return data?.parse?.text || null;
   }
 
-  // Finds a real image + its real caption, exactly as rendered in the article,
-  // by picking a random page and parsing its rendered HTML for thumbnail figures.
-  // In "mixed" mode a different wiki language is rolled on every attempt.
+  async function extractCaptionedImage(title, lang){
+    try{
+      const html = await getParsedHtml(title, lang);
+      if(!html) return null;
+
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const thumbs = Array.from(doc.querySelectorAll('.thumbinner'));
+
+      const usable = thumbs.filter(t=>{
+        if(t.closest('.infobox, .navbox, .metadata, .gallery, .sidebar')) return false;
+        const img = t.querySelector('img');
+        const cap = t.querySelector('.thumbcaption');
+        if(!img || !img.getAttribute('src') || !cap) return false;
+        const capText = cap.textContent.replace(/\s+/g, ' ').trim();
+        return capText.length >= MIN_CAPTION_LEN;
+      });
+
+      if(usable.length === 0) return null;
+
+      const chosen = usable[Math.floor(Math.random() * usable.length)];
+      const img = chosen.querySelector('img');
+      const capClone = chosen.querySelector('.thumbcaption').cloneNode(true);
+      const magnify = capClone.querySelector('.magnify');
+      if(magnify) magnify.remove();
+
+      capClone.querySelectorAll('a').forEach(a=>{
+        a.setAttribute('href', absolutizeUrl(a.getAttribute('href'), lang));
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener');
+      });
+
+      return {
+        title,
+        lang,
+        imgSrc: absolutizeUrl(img.getAttribute('src'), lang),
+        imgAlt: img.getAttribute('alt') || title,
+        captionHtml: capClone.innerHTML.trim(),
+        pageUrl: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`
+      };
+    }catch(e){
+      return null;
+    }
+  }
+
+  // Pulls a batch of random candidate titles pre-filtered by article length
+  // (short stubs almost never carry a captioned image), then parses several
+  // of them at once instead of one-by-one, so a hit surfaces much faster.
   async function fetchRealImageWithCaption(){
     const fixedLang = currentLangSetting();
 
-    for(let attempt=0; attempt<MAX_ATTEMPTS; attempt++){
+    for(let batch=0; batch<MAX_BATCHES; batch++){
       const lang = fixedLang === 'mixed' ? randomLang() : fixedLang;
+
+      let candidates;
       try{
-        const title = await getRandomTitle(lang);
-        if(!title) continue;
+        candidates = await getRandomCandidates(lang, CANDIDATES_PER_BATCH);
+      }catch(e){ candidates = []; }
+      if(candidates.length === 0) continue;
 
-        const html = await getParsedHtml(title, lang);
-        if(!html) continue;
-
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        const thumbs = Array.from(doc.querySelectorAll('.thumbinner'));
-
-        const usable = thumbs.filter(t=>{
-          // Skip anything inside an infobox, navbox, or gallery — we only want
-          // genuine in-article thumbnails with an editor-written caption below them.
-          if(t.closest('.infobox, .navbox, .metadata, .gallery, .sidebar')) return false;
-
-          const img = t.querySelector('img');
-          const cap = t.querySelector('.thumbcaption');
-          if(!img || !img.getAttribute('src') || !cap) return false;
-
-          // Just require *some* real caption text below the image (not empty).
-          const capText = cap.textContent.replace(/\s+/g, ' ').trim();
-          return capText.length >= MIN_CAPTION_LEN;
-        });
-
-        if(usable.length === 0) continue;
-
-        const chosen = usable[Math.floor(Math.random() * usable.length)];
-        const img = chosen.querySelector('img');
-        const capClone = chosen.querySelector('.thumbcaption').cloneNode(true);
-        const magnify = capClone.querySelector('.magnify');
-        if(magnify) magnify.remove();
-
-        capClone.querySelectorAll('a').forEach(a=>{
-          a.setAttribute('href', absolutizeUrl(a.getAttribute('href'), lang));
-          a.setAttribute('target', '_blank');
-          a.setAttribute('rel', 'noopener');
-        });
-
-        return {
-          title,
-          lang,
-          imgSrc: absolutizeUrl(img.getAttribute('src'), lang),
-          imgAlt: img.getAttribute('alt') || title,
-          captionHtml: capClone.innerHTML.trim(),
-          pageUrl: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`
-        };
-      }catch(e){ /* try another random page */ }
+      const slice = shuffle(candidates).slice(0, PARSE_PARALLEL);
+      const results = await Promise.all(slice.map(title => extractCaptionedImage(title, lang)));
+      const found = results.find(r => r);
+      if(found) return found;
     }
     return null;
   }
@@ -335,7 +350,7 @@
     randomBtn.disabled = true;
     thumbCard.classList.add('loading');
     imageWrap.innerHTML = '<span>Cargando…</span>';
-    captionBox.textContent = 'Buscando un artículo con una imagen con leyenda…';
+    captionBox.textContent = 'Buscando artículos con imagen (en paralelo)…';
     articleCredit.innerHTML = '';
     sourceBtn.setAttribute('aria-disabled', 'true');
     sourceBtn.href = '#';
