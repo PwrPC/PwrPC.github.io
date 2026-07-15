@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>randomized Wikipedia images core</title>
+<title>Wikipedia al azar</title>
 <style>
   :root{
     --wiki-blue:#0645ad;
@@ -234,7 +234,7 @@
 (function(){
   const WIKI_LANGS = ['es', 'en', 'fr', 'de', 'it', 'pt', 'ja', 'nl', 'ru', 'ca'];
   const MAX_ATTEMPTS = 30;
-  const MIN_CAPTION_LEN = 40;
+  const MIN_CAPTION_LEN = 1;
 
   function apiBaseFor(lang){ return `https://${lang}.wikipedia.org/w/api.php`; }
   function randomLang(){ return WIKI_LANGS[Math.floor(Math.random() * WIKI_LANGS.length)]; }
@@ -299,7 +299,7 @@
           const cap = t.querySelector('.thumbcaption');
           if(!img || !img.getAttribute('src') || !cap) return false;
 
-          // The caption must be real prose below the image, not a stray label.
+          // Just require *some* real caption text below the image (not empty).
           const capText = cap.textContent.replace(/\s+/g, ' ').trim();
           return capText.length >= MIN_CAPTION_LEN;
         });
