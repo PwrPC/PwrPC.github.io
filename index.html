@@ -1,82 +1,268 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heichi [並置]</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .title-font { font-family: 'Playfair Display', serif; }
-        .hero-bg { background-color: #e6e0ff; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heichi [並置]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700;800&family=Poppins:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#E5E0FD;
+    --bg-tile:#DCD5FB;
+    --ink:#3C2B5B;
+    --ink-muted:#6B5E8F;
+    --card-bg:#EFEAFE;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:'Poppins', sans-serif;
+    color:var(--ink);
+    background-color:var(--bg);
+    /* subtle tiled dot pattern — a wink at old desktop wallpaper, kept quiet enough to stay modern */
+    background-image:
+      radial-gradient(var(--bg-tile) 1.4px, transparent 1.4px);
+    background-size:22px 22px;
+  }
+
+  a{ color:var(--ink); }
+
+  .frame{
+    max-width:1040px;
+    margin:36px auto;
+    padding:2px;
+    border:1px solid var(--ink);
+  }
+  .frame-inner{
+    border:1px solid var(--ink);
+    padding:40px 44px 30px;
+    background:var(--bg);
+  }
+  @media (max-width:640px){
+    .frame{ margin:16px; }
+    .frame-inner{ padding:26px 20px 22px; }
+  }
+
+  /* ---------- header ---------- */
+  .topline{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'VT323', monospace;
+    font-size:16px;
+    letter-spacing:0.04em;
+    color:var(--ink-muted);
+    margin-bottom:26px;
+    padding-bottom:10px;
+    border-bottom:1px dashed var(--ink-muted);
+  }
+  .topline .blinker{ animation:blink 1.1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  header h1{
+    font-family:'Roboto Slab', serif;
+    font-weight:800;
+    font-size:52px;
+    margin:0 0 20px 0;
+    padding-bottom:16px;
+    border-bottom:2px solid var(--ink);
+    display:inline-block;
+    letter-spacing:-0.01em;
+  }
+  header h1 .cursor{
+    display:inline-block;
+    animation:blink 1s steps(1) infinite;
+    font-weight:400;
+  }
+
+  header p{
+    font-size:18px;
+    line-height:1.55;
+    max-width:620px;
+    margin:0 0 40px 0;
+  }
+
+  /* ---------- nav grid ---------- */
+  .nav-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+    gap:24px;
+    margin-bottom:14px;
+  }
+
+  .nav-box{
+    position:relative;
+    display:block;
+    text-decoration:none;
+    color:var(--ink);
+    background:var(--card-bg);
+    border:2px solid var(--ink);
+    padding:20px 20px 18px;
+    /* soft bevel — an early-web button, tuned down for a modern eye */
+    box-shadow:
+      inset 1.5px 1.5px 0 rgba(255,255,255,0.65),
+      inset -1.5px -1.5px 0 rgba(60,43,91,0.12);
+    transition:background 0.12s ease, color 0.12s ease, transform 0.06s ease;
+  }
+  .nav-box:hover{
+    background:var(--ink);
+    color:var(--bg);
+    transform:translateY(-1px);
+  }
+  .nav-box:active{ transform:translateY(0); }
+
+  .nav-box .badge{
+    position:absolute;
+    top:-10px;
+    right:12px;
+    font-family:'VT323', monospace;
+    font-size:15px;
+    letter-spacing:0.05em;
+    background:var(--ink);
+    color:var(--bg);
+    padding:2px 8px;
+    border:1px solid var(--ink);
+  }
+  .nav-box:hover .badge{
+    background:var(--bg);
+    color:var(--ink);
+  }
+
+  .nav-box h2{
+    font-size:18px;
+    font-weight:700;
+    margin:0 0 10px 0;
+  }
+  .nav-box h2::before{
+    content:'» ';
+  }
+
+  .nav-box p{
+    font-size:13.5px;
+    line-height:1.6;
+    margin:0;
+    color:inherit;
+    opacity:0.88;
+  }
+
+  /* ---------- divider ---------- */
+  .dots-divider{
+    text-align:center;
+    letter-spacing:10px;
+    color:var(--ink-muted);
+    font-size:12px;
+    margin:38px 0 26px;
+    user-select:none;
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  footer .credit h3{
+    font-family:'Roboto Slab', serif;
+    font-weight:800;
+    font-size:22px;
+    margin:0 0 6px 0;
+  }
+  footer .credit p{
+    font-size:13px;
+    color:var(--ink-muted);
+    margin:0;
+  }
+
+  footer .contact{
+    text-align:right;
+    font-size:13.5px;
+    line-height:1.9;
+  }
+  footer .contact .label{
+    font-weight:700;
+    display:block;
+    margin-bottom:2px;
+  }
+  footer .contact a{
+    text-decoration:none;
+    color:var(--ink);
+  }
+  footer .contact a:hover{ text-decoration:underline; }
+</style>
 </head>
-<body class="hero-bg text-[#3f2a5e] min-h-screen flex flex-col">
+<body>
 
-    <div class="max-w-6xl mx-auto px-6 pt-20 pb-28">
-        <h1 class="title-font text-6xl md:text-7xl font-bold tracking-tight border-b border-[#3f2a5e] pb-4 inline-block">
-            Heichi <span class="text-5xl md:text-6xl">[並置]</span>
-        </h1>
-        
-        <p class="mt-10 text-2xl leading-relaxed max-w-3xl">
-            significa yuxtaposición, que es el arte de colocar elementos opuestos o diferentes uno al lado del otro 
-            para que resalten, choquen o se complementen.
-        </p>
+<div class="frame">
+  <div class="frame-inner">
 
-        <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-10">
-
-            <a href="/server" 
-               class="group border-2 border-[#3f2a5e] px-8 py-10 hover:bg-white/40 transition-all flex flex-col items-center text-center">
-                <span class="font-medium text-2xl">Servidor de Minecraft</span>
-            </a>
-
-            <a href="/downloads" 
-               class="group border-2 border-[#3f2a5e] px-8 py-10 hover:bg-white/40 transition-all flex flex-col items-center text-center">
-                <span class="font-medium text-2xl">Descargas y otros</span>
-            </a>
-
-            <a href="/coleccion" 
-               class="group border-2 border-[#3f2a5e] px-8 py-10 hover:bg-white/40 transition-all flex flex-col items-center text-center">
-                <span class="font-medium text-2xl">Colección</span>
-            </a>
-
-        </div>
-
-        <!-- Textos descriptivos (mantuve los mismos) -->
-        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10 text-lg">
-            <div class="text-center md:text-left">
-                <p>¡Sí, tenemos un servidor de Minecraft!<br>
-                Así que puedes solicitar acceso.</p>
-            </div>
-            <div class="text-center md:text-left">
-                <p>Aquí hay mundos de diferentes servidores<br>
-                y otros archivos que puedes descargar.<br>
-                No es mucho, pero sirve.</p>
-            </div>
-            <div class="text-center md:text-left">
-                <p>Mi colección personal de juegos,<br>
-                consolas y otras cosas random que tengo por ahí.</p>
-            </div>
-        </div>
+    <div class="topline">
+      <span>heichi.org<span class="blinker">_</span></span>
     </div>
 
-    <!-- Footer igual que antes -->
-    <footer class="mt-auto border-t border-[#3f2a5e]/30 bg-white/30 py-14">
-        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-                <p class="title-font text-4xl font-bold">Heichi</p>
-                <p class="mt-3 text-sm opacity-75">este sitio es una obra de PwrPC.</p>
-            </div>
-            <div class="text-left md:text-right">
-                <p class="font-medium text-lg mb-4">Contacto</p>
-                <div class="space-y-2 text-base">
-                    <p>Instagram <a href="https://instagram.com/Pwr_PC" target="_blank" class="hover:underline">@Pwr_PC</a></p>
-                    <p>X <a href="https://x.com/Pwr_PC" target="_blank" class="hover:underline">@Pwr_PC</a></p>
-                    <p>Bl0cky@icloud.com</p>
-                </div>
-            </div>
-        </div>
+    <header>
+      <h1>Heichi [並置]<span class="cursor">▌</span></h1>
+      <p>significa yuxtaposición, que es el arte de colocar elementos opuestos o diferentes uno al lado del otro para que resalten, choquen o se complementen.</p>
+    </header>
+
+    <nav class="nav-grid">
+
+      <a class="nav-box" href="/server">
+        <h2>Servidor de Minecraft</h2>
+        <p>¡Sí, tenemos un servidor de Minecraft! Así que puedes solicitar acceso.</p>
+      </a>
+
+      <a class="nav-box" href="/downloads">
+        <h2>Descargas y otros</h2>
+        <p>Aquí hay mundos de diferentes servidores y otros archivos que puedes descargar. No es mucho, pero sirve.</p>
+      </a>
+
+      <a class="nav-box" href="/coleccion">
+        <h2>Colección</h2>
+        <p>Mi colección personal de juegos, consolas y otras cosas random que tengo por ahí.</p>
+      </a>
+
+      <a class="nav-box" href="/gputest.html">
+        <span class="badge">NUEVO</span>
+        <h2>Prueba GPU</h2>
+        <p>Un cubo 3D que rota mientras tu navegador mide FPS y datos de tu tarjeta gráfica. Puedes subirle tu propia textura.</p>
+      </a>
+
+      <a class="nav-box" href="/wikiimagecore.html">
+        <span class="badge">NUEVO</span>
+        <h2>Wikipedia al azar</h2>
+        <p>Imágenes y leyendas reales, tomadas al azar de artículos de Wikipedia en varios idiomas.</p>
+      </a>
+
+      <a class="nav-box" href="/minecraftcalc.html">
+        <span class="badge">NUEVO</span>
+        <h2>Calculadora de Minecraft</h2>
+        <p>Aquí encontrarás varias utilidades para calcular cosas in-game.</p>
+      </a>
+
+    </nav>
+
+    <div class="dots-divider">• • • • • • • • • •</div>
+
+    <footer>
+      <div class="credit">
+        <h3>Heichi</h3>
+        <p>este sitio es una obra de PwrPC.</p>
+      </div>
+      <div class="contact">
+        <span class="label">Contacto</span>
+        <div>Instagram <a href="https://instagram.com/Pwr_PC" target="_blank" rel="noopener">@Pwr_PC</a></div>
+        <div>X <a href="https://x.com/Pwr_PC" target="_blank" rel="noopener">@Pwr_PC</a></div>
+        <div><a href="mailto:Bl0cky@icloud.com">Bl0cky@icloud.com</a></div>
+      </div>
     </footer>
+
+  </div>
+</div>
+
+
 </body>
 </html>
