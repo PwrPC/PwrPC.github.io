@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Minecraft — Heichi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#E5E0FD;
+    --ink:#3C2B5B;
+    --ink-muted:#6B5E8F;
+    --card-bg:#EFEAFE;
+    --warn:#8a2f2f;
+    --warn-bg:#F7E3E3;
+    --ok:#2f6b4f;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); }
+  body{ font-family:'Poppins', sans-serif; color:var(--ink); }
+
+  .page{ max-width:920px; margin:0 auto; padding:28px 24px 70px; }
+
+  .home-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    text-decoration:none; color:var(--ink);
+    font-size:14px; border:1.5px solid var(--ink);
+    padding:7px 14px; margin-bottom:26px;
+  }
+  .home-btn:hover{ background:var(--ink); color:var(--bg); }
+
+  h1{
+    font-family:'Roboto Slab', serif;
+    font-weight:800;
+    font-size:38px;
+    margin:0 0 10px 0;
+    padding-bottom:14px;
+    border-bottom:2px solid var(--ink);
+    display:inline-block;
+  }
+  .intro{ font-size:15.5px; line-height:1.6; color:var(--ink-muted); max-width:680px; margin:14px 0 40px; }
+
+  section{ margin-bottom:52px; }
+  section h2{
+    font-family:'Roboto Slab', serif;
+    font-weight:700;
+    font-size:22px;
+    margin:0 0 6px 0;
+  }
+  section .subtitle{ font-size:13.5px; color:var(--ink-muted); margin:0 0 20px 0; line-height:1.55; max-width:620px; }
+
+  .panel{
+    border:2px solid var(--ink);
+    background:var(--card-bg);
+    padding:24px 24px 22px;
+  }
+
+  label{ font-size:13px; color:var(--ink-muted); display:block; margin-bottom:5px; }
+
+  input[type=text], input[type=number]{
+    font-family:'Poppins', sans-serif;
+    font-size:14px;
+    padding:8px 10px;
+    border:1.5px solid var(--ink);
+    background:var(--bg);
+    color:var(--ink);
+    width:100%;
+  }
+  input:focus{ outline:2px solid var(--ink-muted); outline-offset:1px; }
+
+  .field-row{ display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+  .field-row > div{ flex:1; min-width:140px; }
+
+  button{
+    font-family:'Poppins', sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    padding:10px 18px;
+    border:1.5px solid var(--ink);
+    background:var(--ink);
+    color:var(--bg);
+    cursor:pointer;
+  }
+  button:hover{ background:var(--bg); color:var(--ink); }
+  button.secondary{
+    background:var(--bg); color:var(--ink);
+  }
+  button.secondary:hover{ background:var(--ink); color:var(--bg); }
+  button.small{ padding:5px 10px; font-size:12px; }
+
+  /* ---------- results ---------- */
+  .result-block{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px dashed var(--ink-muted);
+  }
+  .result-line{ display:flex; justify-content:space-between; font-size:14px; padding:5px 0; }
+  .result-line .k{ color:var(--ink-muted); }
+  .result-line .v{ font-weight:700; }
+  .result-big{
+    font-family:'Roboto Slab', serif;
+    font-weight:800;
+    font-size:30px;
+    margin-top:6px;
+  }
+  .result-big .unit{ font-size:15px; font-family:'Poppins'; font-weight:500; color:var(--ink-muted); }
+
+  /* ---------- enchant rows (anvil calculator) ---------- */
+  .rows{ display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+  .ench-row{ display:flex; gap:10px; align-items:center; }
+  .ench-row input[type=text]{ flex:2; }
+  .ench-row input[type=number]{ flex:1; }
+  .ench-row button{ flex-shrink:0; }
+
+  table{ width:100%; border-collapse:collapse; margin-top:14px; font-size:13.5px; }
+  th, td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--ink-muted); }
+  th{ color:var(--ink-muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:0.04em; }
+  tr.over-cap td{ background:var(--warn-bg); color:var(--warn); font-weight:600; }
+
+  .note{
+    font-size:12.5px; color:var(--ink-muted); margin-top:14px; line-height:1.6;
+    border-left:2px solid var(--ink-muted); padding-left:10px;
+  }
+  .warn-banner{
+    margin-top:14px; padding:10px 12px; background:var(--warn-bg); color:var(--warn);
+    font-size:13px; font-weight:600; border:1px solid var(--warn);
+  }
+  .ok-banner{
+    margin-top:14px; padding:10px 12px; background:#E4F0EA; color:var(--ok);
+    font-size:13px; font-weight:600; border:1px solid var(--ok);
+  }
+
+  .checkbox-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .checkbox-grid label{
+    display:flex; align-items:center; gap:8px;
+    font-size:13.5px; color:var(--ink);
+    border:1.5px solid var(--ink);
+    padding:8px 10px;
+    cursor:pointer;
+    background:var(--bg);
+    margin-bottom:0;
+  }
+  .checkbox-grid input{ accent-color:var(--ink); }
+
+  .piece-card{
+    border:1.5px solid var(--ink);
+    background:var(--bg);
+    padding:16px 16px 14px;
+    margin-top:14px;
+  }
+  .piece-card h3{
+    font-size:15.5px; margin:0 0 12px 0; font-weight:700;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .piece-card h3 .piece-total{ font-weight:800; color:var(--ink); }
+
+  .grand-total{
+    margin-top:24px;
+    padding-top:18px;
+    border-top:2px solid var(--ink);
+    display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .grand-total .label{ font-size:16px; font-weight:600; }
+  .grand-total .amount{ font-family:'Roboto Slab', serif; font-weight:800; font-size:32px; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <a href="/" class="home-btn">← Volver a inicio</a>
+
+  <h1>Calculadora de Minecraft</h1>
+  <p class="intro">Aquí encontrarás varias utilidades para calcular cosas in-game: niveles de experiencia, el orden más seguro para encantar en el yunque, y cuántas esmeraldas necesitas para los libros de tu equipo.</p>
+
+  <!-- ===================== SECTION 1: XP / LEVELS ===================== -->
+  <section>
+    <h2>Niveles y experiencia</h2>
+    <p class="subtitle">Convierte entre nivel y puntos de experiencia, y calcula cuántos puntos te faltan para llegar a un nivel objetivo.</p>
+
+    <div class="panel">
+      <div class="field-row">
+        <div>
+          <label for="xpCurrentLevel">Tu nivel actual</label>
+          <input type="number" id="xpCurrentLevel" min="0" value="30">
+        </div>
+        <div>
+          <label for="xpTargetLevel">Nivel objetivo (opcional)</label>
+          <input type="number" id="xpTargetLevel" min="0" value="40">
+        </div>
+      </div>
+      <button id="xpCalcBtn">Calcular</button>
+
+      <div class="result-block" id="xpResult"></div>
+
+      <div class="note">Asume que estás justo al comienzo de tu nivel actual (0 puntos acumulados dentro de ese nivel). Si ya tienes puntos ganados dentro del nivel, necesitarás un poco menos de lo mostrado.</div>
+    </div>
+  </section>
+
+  <!-- ===================== SECTION 2: ANVIL ORDER ===================== -->
+  <section>
+    <h2>Orden de yunque para encantar</h2>
+    <p class="subtitle">Agrega cada encantamiento con su precio en niveles (el costo de aplicarlo solo, a un objeto sin usar). Te decimos en qué orden aplicarlos para no toparte con "¡Es demasiado caro!" a mitad de camino.</p>
+
+    <div class="panel">
+      <div class="rows" id="enchantRows"></div>
+      <button class="secondary small" id="addEnchantRow">+ Agregar encantamiento</button>
+
+      <div class="field-row" style="margin-top:20px;">
+        <div>
+          <label for="anvilCap">Límite de niveles por operación</label>
+          <input type="number" id="anvilCap" min="1" value="39">
+        </div>
+      </div>
+
+      <button id="anvilCalcBtn">Calcular orden óptimo</button>
+
+      <div class="result-block" id="anvilResult"></div>
+
+      <div class="note">
+        El total de niveles gastados es el mismo sin importar el orden (siempre que apliques cada libro directamente sobre la misma herramienta, uno a la vez). Lo que sí cambia con el orden es el costo de <em>cada paso individual</em> — por eso conviene aplicar primero los encantamientos más caros, cuando la penalización del yunque todavía es baja. Esto asume libros nuevos (sin usos previos de yunque).
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SECTION 3: EMERALDS ===================== -->
+  <section>
+    <h2>Esmeraldas para los libros de tu equipo</h2>
+    <p class="subtitle">Elige qué piezas vas a encantar. Por cada una, agrega los libros que necesitas comprar y su precio en esmeraldas — sumamos el total.</p>
+
+    <div class="panel">
+      <div class="checkbox-grid" id="pieceCheckboxes"></div>
+
+      <div id="pieceCards"></div>
+
+      <div class="grand-total">
+        <span class="label">Total de esmeraldas</span>
+        <span class="amount" id="emeraldGrandTotal">0</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+
+  /* =========================================================
+     SECTION 1 — XP / LEVELS
+  ========================================================= */
+  function totalXP(level){
+    level = Math.max(0, level);
+    if(level <= 16) return level*level + 6*level;
+    if(level <= 31) return 2.5*level*level - 40.5*level + 360;
+    return 4.5*level*level - 162.5*level + 2220;
+  }
+  function pointsToNextLevel(level){
+    if(level <= 15) return 2*level + 7;
+    if(level <= 30) return 5*level - 38;
+    return 9*level - 158;
+  }
+
+  document.getElementById('xpCalcBtn').addEventListener('click', ()=>{
+    const cur = parseInt(document.getElementById('xpCurrentLevel').value, 10) || 0;
+    const target = document.getElementById('xpTargetLevel').value;
+    const curXP = totalXP(cur);
+    const nextNeed = pointsToNextLevel(cur);
+
+    let html = '';
+    html += `<div class="result-line"><span class="k">Puntos totales acumulados en nivel ${cur}</span><span class="v">${Math.round(curXP)}</span></div>`;
+    html += `<div class="result-line"><span class="k">Puntos para pasar al nivel ${cur+1}</span><span class="v">${Math.round(nextNeed)}</span></div>`;
+
+    if(target !== ''){
+      const t = parseInt(target, 10);
+      const targetXP = totalXP(t);
+      const diff = targetXP - curXP;
+      html += `<div class="result-block">`;
+      html += `<div class="result-big">${Math.max(0, Math.round(diff))} <span class="unit">puntos de experiencia para llegar del nivel ${cur} al ${t}</span></div>`;
+      html += `</div>`;
+    }
+
+    document.getElementById('xpResult').innerHTML = html;
+  });
+
+  /* =========================================================
+     SECTION 2 — ANVIL ORDER
+  ========================================================= */
+  const enchantRowsEl = document.getElementById('enchantRows');
+
+  function addEnchantRow(name, price){
+    const row = document.createElement('div');
+    row.className = 'ench-row';
+    row.innerHTML = `
+      <input type="text" placeholder="Nombre (ej. Sharpness V)" value="${name || ''}">
+      <input type="number" placeholder="Precio en niveles" min="0" value="${price != null ? price : ''}">
+      <button class="secondary small remove-row">✕</button>
+    `;
+    row.querySelector('.remove-row').addEventListener('click', ()=> row.remove());
+    enchantRowsEl.appendChild(row);
+  }
+  addEnchantRow('Protection IV', 8);
+  addEnchantRow('Unbreaking III', 5);
+  addEnchantRow('Mending', 6);
+  addEnchantRow('Curse of Vanishing', 4);
+
+  document.getElementById('addEnchantRow').addEventListener('click', ()=> addEnchantRow());
+
+  document.getElementById('anvilCalcBtn').addEventListener('click', ()=>{
+    const rows = Array.from(enchantRowsEl.querySelectorAll('.ench-row'));
+    const items = rows.map(r=>{
+      const inputs = r.querySelectorAll('input');
+      return { name: inputs[0].value.trim() || 'Sin nombre', price: parseFloat(inputs[1].value) || 0 };
+    }).filter(it => it.price > 0);
+
+    const resultEl = document.getElementById('anvilResult');
+    if(items.length === 0){
+      resultEl.innerHTML = '<div class="warn-banner">Agrega al menos un encantamiento con un precio mayor que cero.</div>';
+      return;
+    }
+
+    const cap = parseFloat(document.getElementById('anvilCap').value) || 39;
+
+    // Optimal sequential order: descending price, applied one at a time onto
+    // the same tool. Prior work penalty grows 0,1,3,7,15... regardless of
+    // which enchant lands on which step — so this order minimizes the max
+    // single-step cost (keeps you furthest from the "too expensive" cap).
+    const ordered = [...items].sort((a,b)=> b.price - a.price);
+
+    let repairPrev = 0;
+    let total = 0;
+    let anyOverCap = false;
+    let rowsHtml = '';
+
+    ordered.forEach((item, i)=>{
+      const stepCost = item.price + repairPrev;
+      total += stepCost;
+      const overCap = stepCost > cap;
+      if(overCap) anyOverCap = true;
+      rowsHtml += `<tr class="${overCap ? 'over-cap' : ''}">
+        <td>${i+1}</td>
+        <td>${item.name}</td>
+        <td>${item.price}</td>
+        <td>${repairPrev}</td>
+        <td>${stepCost}${overCap ? ' ⚠' : ''}</td>
+      </tr>`;
+      repairPrev = 2 * repairPrev + 1;
+    });
+
+    let html = `
+      <table>
+        <thead>
+          <tr><th>#</th><th>Encantamiento</th><th>Precio</th><th>Penalización previa</th><th>Costo del paso</th></tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+      <div class="result-block">
+        <div class="result-big">${total} <span class="unit">niveles en total</span></div>
+      </div>
+    `;
+
+    if(anyOverCap){
+      html += `<div class="warn-banner">⚠ Al menos un paso supera tu límite de ${cap} niveles ("¡Es demasiado caro!"). Necesitarás modo creativo, un comando, o dividir el proceso usando libros combinados intermedios (lo cual sube el total).</div>`;
+    } else {
+      html += `<div class="ok-banner">✓ Ningún paso supera el límite de ${cap} niveles con este orden.</div>`;
+    }
+
+    resultEl.innerHTML = html;
+  });
+
+  /* =========================================================
+     SECTION 3 — EMERALDS PER PIECE
+  ========================================================= */
+  const PIECES = [
+    'Casco', 'Pechera', 'Pantalones', 'Botas',
+    'Espada', 'Arco', 'Ballesta', 'Tridente',
+    'Pico', 'Hacha', 'Pala', 'Azada', 'Escudo', 'Elytra'
+  ];
+
+  const checkboxWrap = document.getElementById('pieceCheckboxes');
+  const cardsWrap = document.getElementById('pieceCards');
+
+  PIECES.forEach(piece=>{
+    const label = document.createElement('label');
+    label.innerHTML = `<input type="checkbox" data-piece="${piece}"> ${piece}`;
+    checkboxWrap.appendChild(label);
+    label.querySelector('input').addEventListener('change', e=>{
+      if(e.target.checked) addPieceCard(piece);
+      else removePieceCard(piece);
+      recomputeGrandTotal();
+    });
+  });
+
+  function addPieceCard(piece){
+    if(document.getElementById('piece-card-' + piece)) return;
+    const card = document.createElement('div');
+    card.className = 'piece-card';
+    card.id = 'piece-card-' + piece;
+    card.innerHTML = `
+      <h3>${piece} <span class="piece-total">0 💚</span></h3>
+      <div class="rows book-rows"></div>
+      <button class="secondary small add-book-row">+ Agregar libro</button>
+    `;
+    cardsWrap.appendChild(card);
+
+    const rowsEl = card.querySelector('.book-rows');
+    function addBookRow(){
+      const row = document.createElement('div');
+      row.className = 'ench-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Nombre (ej. Sharpness V)">
+        <input type="number" placeholder="Precio (esmeraldas)" min="0">
+        <input type="number" placeholder="Cant." min="1" value="1" style="max-width:70px;">
+        <button class="secondary small remove-row">✕</button>
+      `;
+      row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', recomputeGrandTotal));
+      row.querySelector('.remove-row').addEventListener('click', ()=>{ row.remove(); recomputeGrandTotal(); });
+      rowsEl.appendChild(row);
+    }
+    addBookRow();
+    card.querySelector('.add-book-row').addEventListener('click', addBookRow);
+  }
+
+  function removePieceCard(piece){
+    const card = document.getElementById('piece-card-' + piece);
+    if(card) card.remove();
+  }
+
+  function recomputeGrandTotal(){
+    let grand = 0;
+    document.querySelectorAll('.piece-card').forEach(card=>{
+      let pieceTotal = 0;
+      card.querySelectorAll('.book-rows .ench-row').forEach(row=>{
+        const inputs = row.querySelectorAll('input');
+        const price = parseFloat(inputs[1].value) || 0;
+        const qty = parseFloat(inputs[2].value) || 1;
+        pieceTotal += price * qty;
+      });
+      card.querySelector('.piece-total').textContent = pieceTotal + ' 💚';
+      grand += pieceTotal;
+    });
+    document.getElementById('emeraldGrandTotal').textContent = grand;
+  }
+
+})();
+</script>
+</body>
+</html>
