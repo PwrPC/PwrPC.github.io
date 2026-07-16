@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora de Minecraft</title>
+<title>Calculadora de Minecraft — Heichi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -109,9 +109,9 @@
 
   /* ---------- enchant rows (anvil calculator) ---------- */
   .rows{ display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
-  .ench-row{ display:flex; gap:10px; align-items:center; }
-  .ench-row input[type=text]{ flex:2; }
-  .ench-row input[type=number]{ flex:1; }
+  .ench-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .ench-row input[type=text]{ flex:2; min-width:160px; }
+  .ench-row input[type=number]{ flex:1; min-width:90px; }
   .ench-row button{ flex-shrink:0; }
 
   table{ width:100%; border-collapse:collapse; margin-top:14px; font-size:13.5px; }
@@ -132,34 +132,16 @@
     font-size:13px; font-weight:600; border:1px solid var(--ok);
   }
 
-  .checkbox-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
-    gap:10px;
-    margin-bottom:8px;
-  }
-  .checkbox-grid label{
-    display:flex; align-items:center; gap:8px;
-    font-size:13.5px; color:var(--ink);
-    border:1.5px solid var(--ink);
-    padding:8px 10px;
-    cursor:pointer;
-    background:var(--bg);
-    margin-bottom:0;
-  }
-  .checkbox-grid input{ accent-color:var(--ink); }
-
-  .piece-card{
+  .ench-row select{
+    font-family:'Poppins', sans-serif;
+    font-size:13.5px;
+    padding:8px 8px;
     border:1.5px solid var(--ink);
     background:var(--bg);
-    padding:16px 16px 14px;
-    margin-top:14px;
+    color:var(--ink);
+    flex:1.3;
+    min-width:120px;
   }
-  .piece-card h3{
-    font-size:15.5px; margin:0 0 12px 0; font-weight:700;
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .piece-card h3 .piece-total{ font-weight:800; color:var(--ink); }
 
   .grand-total{
     margin-top:24px;
@@ -236,14 +218,15 @@
     <p class="subtitle">Elige qué piezas vas a encantar. Por cada una, agrega los libros que necesitas comprar y su precio en esmeraldas — sumamos el total.</p>
 
     <div class="panel">
-      <div class="checkbox-grid" id="pieceCheckboxes"></div>
-
-      <div id="pieceCards"></div>
+      <div class="rows" id="bookRows"></div>
+      <button class="secondary small" id="addBookRow">+ Agregar libro</button>
 
       <div class="grand-total">
         <span class="label">Total de esmeraldas</span>
         <span class="amount" id="emeraldGrandTotal">0</span>
       </div>
+
+      <div class="result-block" id="pieceBreakdown"></div>
     </div>
   </section>
 
@@ -375,7 +358,7 @@
   });
 
   /* =========================================================
-     SECTION 3 — EMERALDS PER PIECE
+     SECTION 3 — EMERALDS (unified list, tagged by piece)
   ========================================================= */
   const PIECES = [
     'Casco', 'Pechera', 'Pantalones', 'Botas',
@@ -383,70 +366,72 @@
     'Pico', 'Hacha', 'Pala', 'Azada', 'Escudo', 'Elytra'
   ];
 
-  const checkboxWrap = document.getElementById('pieceCheckboxes');
-  const cardsWrap = document.getElementById('pieceCards');
+  const bookRowsEl = document.getElementById('bookRows');
 
-  PIECES.forEach(piece=>{
-    const label = document.createElement('label');
-    label.innerHTML = `<input type="checkbox" data-piece="${piece}"> ${piece}`;
-    checkboxWrap.appendChild(label);
-    label.querySelector('input').addEventListener('change', e=>{
-      if(e.target.checked) addPieceCard(piece);
-      else removePieceCard(piece);
-      recomputeGrandTotal();
-    });
-  });
+  function pieceOptionsHtml(selected){
+    return PIECES.map(p => `<option value="${p}" ${p === selected ? 'selected' : ''}>${p}</option>`).join('');
+  }
 
-  function addPieceCard(piece){
-    if(document.getElementById('piece-card-' + piece)) return;
-    const card = document.createElement('div');
-    card.className = 'piece-card';
-    card.id = 'piece-card-' + piece;
-    card.innerHTML = `
-      <h3>${piece} <span class="piece-total">0 💚</span></h3>
-      <div class="rows book-rows"></div>
-      <button class="secondary small add-book-row">+ Agregar libro</button>
+  function addBookRow(name, price, qty, piece){
+    const row = document.createElement('div');
+    row.className = 'ench-row';
+    row.innerHTML = `
+      <input type="text" placeholder="Nombre (ej. Sharpness V)" value="${name || ''}">
+      <input type="number" placeholder="Precio (esmeraldas)" min="0" value="${price != null ? price : ''}">
+      <input type="number" placeholder="Cant." min="1" value="${qty || 1}" style="max-width:70px;">
+      <select>${pieceOptionsHtml(piece || PIECES[0])}</select>
+      <button class="secondary small remove-row">✕</button>
     `;
-    cardsWrap.appendChild(card);
-
-    const rowsEl = card.querySelector('.book-rows');
-    function addBookRow(){
-      const row = document.createElement('div');
-      row.className = 'ench-row';
-      row.innerHTML = `
-        <input type="text" placeholder="Nombre (ej. Sharpness V)">
-        <input type="number" placeholder="Precio (esmeraldas)" min="0">
-        <input type="number" placeholder="Cant." min="1" value="1" style="max-width:70px;">
-        <button class="secondary small remove-row">✕</button>
-      `;
-      row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', recomputeGrandTotal));
-      row.querySelector('.remove-row').addEventListener('click', ()=>{ row.remove(); recomputeGrandTotal(); });
-      rowsEl.appendChild(row);
-    }
-    addBookRow();
-    card.querySelector('.add-book-row').addEventListener('click', addBookRow);
+    row.querySelectorAll('input, select').forEach(el => el.addEventListener('input', recomputeEmeralds));
+    row.querySelector('.remove-row').addEventListener('click', ()=>{ row.remove(); recomputeEmeralds(); });
+    bookRowsEl.appendChild(row);
   }
 
-  function removePieceCard(piece){
-    const card = document.getElementById('piece-card-' + piece);
-    if(card) card.remove();
-  }
+  // A couple of starter rows so the layout isn't empty on load
+  addBookRow('Protection IV', 20, 1, 'Pechera');
+  addBookRow('Unbreaking III', 12, 1, 'Pico');
+  addBookRow('Mending', 24, 1, 'Espada');
 
-  function recomputeGrandTotal(){
+  document.getElementById('addBookRow').addEventListener('click', ()=> addBookRow());
+
+  function recomputeEmeralds(){
+    const totals = {};
     let grand = 0;
-    document.querySelectorAll('.piece-card').forEach(card=>{
-      let pieceTotal = 0;
-      card.querySelectorAll('.book-rows .ench-row').forEach(row=>{
-        const inputs = row.querySelectorAll('input');
-        const price = parseFloat(inputs[1].value) || 0;
-        const qty = parseFloat(inputs[2].value) || 1;
-        pieceTotal += price * qty;
-      });
-      card.querySelector('.piece-total').textContent = pieceTotal + ' 💚';
-      grand += pieceTotal;
+
+    Array.from(bookRowsEl.querySelectorAll('.ench-row')).forEach(row=>{
+      const inputs = row.querySelectorAll('input');
+      const select = row.querySelector('select');
+      const price = parseFloat(inputs[1].value) || 0;
+      const qty = parseFloat(inputs[2].value) || 1;
+      const piece = select.value;
+      const subtotal = price * qty;
+      totals[piece] = (totals[piece] || 0) + subtotal;
+      grand += subtotal;
     });
+
     document.getElementById('emeraldGrandTotal').textContent = grand;
+
+    const pieces = Object.keys(totals).filter(p => totals[p] > 0);
+    const breakdownEl = document.getElementById('pieceBreakdown');
+    if(pieces.length === 0){
+      breakdownEl.innerHTML = '';
+      return;
+    }
+
+    let rowsHtml = pieces
+      .sort((a,b)=> totals[b] - totals[a])
+      .map(p => `<tr><td>${p}</td><td>${totals[p]} 💚</td></tr>`)
+      .join('');
+
+    breakdownEl.innerHTML = `
+      <table>
+        <thead><tr><th>Pieza</th><th>Esmeraldas</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    `;
   }
+
+  recomputeEmeralds();
 
 })();
 </script>
