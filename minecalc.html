@@ -151,6 +151,13 @@
   }
   .grand-total .label{ font-size:16px; font-weight:600; }
   .grand-total .amount{ font-family:'Roboto Slab', serif; font-weight:800; font-size:32px; }
+
+  .stack-format{
+    text-align:right;
+    font-size:14px;
+    color:var(--ink-muted);
+    margin-top:4px;
+  }
 </style>
 </head>
 <body>
@@ -225,8 +232,7 @@
         <span class="label">Total de esmeraldas</span>
         <span class="amount" id="emeraldGrandTotal">0</span>
       </div>
-
-      <div class="result-block" id="pieceBreakdown"></div>
+      <div class="stack-format" id="emeraldStacks"></div>
     </div>
   </section>
 
@@ -358,77 +364,52 @@
   });
 
   /* =========================================================
-     SECTION 3 — EMERALDS (unified list, tagged by piece)
+     SECTION 3 — EMERALDS (simple list: name, price, quantity)
   ========================================================= */
-  const PIECES = [
-    'Casco', 'Pechera', 'Pantalones', 'Botas',
-    'Espada', 'Arco', 'Ballesta', 'Tridente',
-    'Pico', 'Hacha', 'Pala', 'Azada', 'Escudo', 'Elytra'
-  ];
-
   const bookRowsEl = document.getElementById('bookRows');
 
-  function pieceOptionsHtml(selected){
-    return PIECES.map(p => `<option value="${p}" ${p === selected ? 'selected' : ''}>${p}</option>`).join('');
-  }
-
-  function addBookRow(name, price, qty, piece){
+  function addBookRow(name, price, qty){
     const row = document.createElement('div');
     row.className = 'ench-row';
     row.innerHTML = `
       <input type="text" placeholder="Nombre (ej. Sharpness V)" value="${name || ''}">
       <input type="number" placeholder="Precio (esmeraldas)" min="0" value="${price != null ? price : ''}">
       <input type="number" placeholder="Cant." min="1" value="${qty || 1}" style="max-width:70px;">
-      <select>${pieceOptionsHtml(piece || PIECES[0])}</select>
       <button class="secondary small remove-row">✕</button>
     `;
-    row.querySelectorAll('input, select').forEach(el => el.addEventListener('input', recomputeEmeralds));
+    row.querySelectorAll('input').forEach(el => el.addEventListener('input', recomputeEmeralds));
     row.querySelector('.remove-row').addEventListener('click', ()=>{ row.remove(); recomputeEmeralds(); });
     bookRowsEl.appendChild(row);
   }
 
   // A couple of starter rows so the layout isn't empty on load
-  addBookRow('Protection IV', 20, 1, 'Pechera');
-  addBookRow('Unbreaking III', 12, 1, 'Pico');
-  addBookRow('Mending', 24, 1, 'Espada');
+  addBookRow('Protection IV', 20, 1);
+  addBookRow('Unbreaking III', 12, 1);
+  addBookRow('Mending', 24, 1);
 
   document.getElementById('addBookRow').addEventListener('click', ()=> addBookRow());
 
-  function recomputeEmeralds(){
-    const totals = {};
-    let grand = 0;
+  function formatStacks(total){
+    const stacks = Math.floor(total / 64);
+    const remainder = total % 64;
 
+    if(stacks === 0) return `(${remainder} Esmeraldas)`;
+    const stackLabel = stacks === 1 ? '1 Stack' : `${stacks} Stacks`;
+    if(remainder === 0) return `(${stackLabel})`;
+    return `(${stackLabel}, ${remainder} Esmeraldas)`;
+  }
+
+  function recomputeEmeralds(){
+    let grand = 0;
     Array.from(bookRowsEl.querySelectorAll('.ench-row')).forEach(row=>{
       const inputs = row.querySelectorAll('input');
-      const select = row.querySelector('select');
       const price = parseFloat(inputs[1].value) || 0;
       const qty = parseFloat(inputs[2].value) || 1;
-      const piece = select.value;
-      const subtotal = price * qty;
-      totals[piece] = (totals[piece] || 0) + subtotal;
-      grand += subtotal;
+      grand += price * qty;
     });
 
     document.getElementById('emeraldGrandTotal').textContent = grand;
-
-    const pieces = Object.keys(totals).filter(p => totals[p] > 0);
-    const breakdownEl = document.getElementById('pieceBreakdown');
-    if(pieces.length === 0){
-      breakdownEl.innerHTML = '';
-      return;
-    }
-
-    let rowsHtml = pieces
-      .sort((a,b)=> totals[b] - totals[a])
-      .map(p => `<tr><td>${p}</td><td>${totals[p]} 💚</td></tr>`)
-      .join('');
-
-    breakdownEl.innerHTML = `
-      <table>
-        <thead><tr><th>Pieza</th><th>Esmeraldas</th></tr></thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
-    `;
+    document.getElementById('emeraldStacks').textContent = formatStacks(grand);
   }
 
   recomputeEmeralds();
